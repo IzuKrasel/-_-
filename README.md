@@ -947,3 +947,849 @@ if __name__ == '__main__':
 <body>
     <main class="auth-container wide">
         <img src="/static/img/logo.jpg" alt="Конференции.РФ" class="auth-logo">
+        <h1>Панель администратора</h1>
+
+        <p class="switch-link">
+            Вы вошли как <strong>{{ session.login }}</strong> |
+            <a href="/logout">Выйти</a>
+        </p><br>
+
+        {% if not requests %}
+            <p class="empty">Заявок пока нет.</p>
+        {% else %}
+            <div class="admin-list">
+                {% for r in requests %}
+                    <div class="admin-row" data-testid="admin-row">
+                        <div class="admin-row-info">
+                            <h3>{{ r.room_name }}</h3>
+                            <p><strong>Пользователь:</strong> {{ r.user_name }} ({{ r.user_login }})</p>
+                            <p><strong>Дата начала:</strong> {{ r.start_date }}</p>
+                            <p><strong>Оплата:</strong> {{ r.payment }}</p>
+                        </div>
+
+                        <form method="POST"
+                              action="/admin/{{ r.id }}/status"
+                              class="admin-status-form">
+                            <select name="status_id"
+                                    data-testid="admin-status"
+                                    onchange="this.form.submit()">
+                                {% for s in statuses %}
+                                    <option value="{{ s.id }}"
+                                        {% if s.id == r.status_id %}selected{% endif %}>
+                                        {{ s.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <noscript>
+                                <button type="submit">Сохранить</button>
+                            </noscript>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </main>
+</body>
+</html>
+```
+
+---
+
+## 9. Клиентская часть: CSS3
+
+### 9.1. Назначение
+
+Единый файл `static/css/style.css` оформляет все страницы приложения. Используется цветовая палитра и шрифт из руководства по стилю.
+
+### 9.2. Палитра и шрифты
+
+| Переменная | Значение | Назначение |
+|-----------|----------|------------|
+| --blue | #007bff | Основной цвет |
+| --dark | #0d47a1 | Тёмно-синий (заголовки, текст) |
+| --gray | #6c757d | Серый (вспомогательный текст) |
+| --bg | #f8f9fa | Фон |
+| --white | #ffffff | Белый (карточки) |
+| --red | #721c24 | Текст ошибок |
+
+Шрифт — PT Sans. Размеры: H1 — 32–36px, H2–H3 — 18–24px, основной текст — 16px, вспомогательный — 12–14px.
+
+### 9.3. Полный код `static/css/style.css`
+
+```css
+/* ============================================================
+   ШРИФТ PT SANS
+   ============================================================ */
+@font-face {
+    font-family: 'PT Sans';
+    src: url('/static/fonts/PTSans-Regular.ttf') format('truetype');
+    font-weight: 400;
+}
+@font-face {
+    font-family: 'PT Sans';
+    src: url('/static/fonts/PTSans-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+@font-face {
+    font-family: 'PT Sans';
+    src: url('/static/fonts/PTSans-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* ============================================================
+   ЦВЕТА
+   ============================================================ */
+:root {
+    --blue:  #007bff;
+    --dark:  #0d47a1;
+    --gray:  #6c757d;
+    --bg:    #f8f9fa;
+    --white: #ffffff;
+    --red:   #721c24;
+    --radius: 10px;
+}
+
+/* ============================================================
+   БАЗА
+   ============================================================ */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'PT Sans', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    font-size: 16px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* ============================================================
+   КАРТОЧКА
+   ============================================================ */
+.auth-container {
+    background: var(--white);
+    padding: 36px 30px;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(13, 71, 161, 0.08);
+    width: 100%;
+    max-width: 440px;
+    border-top: 4px solid var(--blue);
+    animation: fadeIn 0.4s ease-out;
+}
+
+.auth-container.wide {
+    max-width: 720px;
+}
+
+.auth-logo {
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+h1 {
+    font-size: 32px;
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+/* ============================================================
+   ПОЛЯ И КНОПКИ
+   ============================================================ */
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border: 1px solid #ced4da;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--dark);
+    background: var(--white);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--gray);
+    font-style: italic;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+    background: var(--dark);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* ============================================================
+   ОШИБКИ
+   ============================================================ */
+.errors {
+    background: #fdecea;
+    border: 1px solid #f5c6cb;
+    color: var(--red);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.errors ul { list-style: none; }
+
+/* ============================================================
+   ССЫЛКИ
+   ============================================================ */
+.switch-link {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--gray);
+    font-style: italic;
+}
+
+.switch-link a {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.switch-link a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   СПИСОК ЗАЯВОК
+   ============================================================ */
+.empty {
+    text-align: center;
+    color: var(--gray);
+    font-style: italic;
+    padding: 20px 0;
+}
+
+.request-card {
+    background: var(--bg);
+    border: 1px solid #dee2e6;
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.request-card:hover {
+    box-shadow: 0 4px 16px rgba(13, 71, 161, 0.10);
+    transform: translateY(-2px);
+}
+
+.request-card p {
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+.review-form {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #ced4da;
+}
+
+.review-form textarea {
+    min-height: 70px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.review-form select {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.review-form button {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+/* ============================================================
+   ПАНЕЛЬ АДМИНИСТРАТОРА
+   ============================================================ */
+.admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg);
+    border: 1px solid #dee2e6;
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.admin-row-info {
+    flex: 1;
+}
+
+.admin-row-info h3 {
+    margin-bottom: 8px;
+    color: var(--dark);
+}
+
+.admin-row-info p {
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.admin-status-form select {
+    width: auto;
+    min-width: 180px;
+    margin-bottom: 0;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.admin-status-form button {
+    width: auto;
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+/* ============================================================
+   АНИМАЦИИ
+   ============================================================ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   АДАПТИВ ПОД СМАРТФОН 390×844
+   ============================================================ */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 24px 18px;
+        border-radius: 8px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    input, button, textarea, select {
+        font-size: 16px;
+    }
+
+    .admin-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-status-form select {
+        width: 100%;
+    }
+}
+```
+
+---
+
+## 10. Клиентская часть: JavaScript
+
+### 10.1. Назначение
+
+Файл `static/js/validation.js` выполняет клиентскую валидацию форм регистрации и входа, а также вставляет блок ошибок в DOM перед формой.
+
+### 10.2. Полный код `static/js/validation.js`
+
+```javascript
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* ============================================================
+       ВАЛИДАЦИЯ ФОРМЫ РЕГИСТРАЦИИ
+       ============================================================ */
+    var regForm = document.getElementById('register-form');
+
+    if (regForm) {
+        regForm.addEventListener('submit', function (e) {
+
+            var errors = [];
+
+            var login    = document.getElementById('login').value.trim();
+            var password = document.getElementById('password').value;
+            var fullname = document.getElementById('fullname').value.trim();
+            var phone    = document.getElementById('phone').value.trim();
+            var email    = document.getElementById('email').value.trim();
+
+            if (!/^[A-Za-z0-9]{6,}$/.test(login)) {
+                errors.push('Логин: только латиница и цифры, минимум 6 символов');
+            }
+
+            if (password.length < 8) {
+                errors.push('Пароль: минимум 8 символов');
+            }
+
+            if (!/^[А-Яа-яЁё\s]+$/.test(fullname)) {
+                errors.push('ФИО: только кириллица и пробелы');
+            }
+
+            if (!/^8\(\d{3}\)\d{3}-\d{2}-\d{2}$/.test(phone)) {
+                errors.push('Телефон: формат 8(XXX)XXX-XX-XX');
+            }
+
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                errors.push('Email: некорректный формат');
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                showErrors(regForm, errors, 'reg-errors');
+            }
+        });
+    }
+
+    /* ============================================================
+       ВАЛИДАЦИЯ ФОРМЫ ВХОДА
+       ============================================================ */
+    var loginForm = document.getElementById('login-form');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+
+            var errors = [];
+
+            var login    = document.getElementById('login').value.trim();
+            var password = document.getElementById('password').value;
+
+            if (!login) {
+                errors.push('Введите логин');
+            }
+            if (!password) {
+                errors.push('Введите пароль');
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                showErrors(loginForm, errors, 'login-errors');
+            }
+        });
+    }
+
+    /* ============================================================
+       ФУНКЦИЯ ПОКАЗА ОШИБОК
+       ============================================================ */
+    function showErrors(form, errors, containerId) {
+
+        var old = document.querySelector('[data-testid="' + containerId + '"]');
+        if (old) {
+            old.remove();
+        }
+
+        var div = document.createElement('div');
+        div.className = 'errors';
+        div.setAttribute('data-testid', containerId);
+
+        div.innerHTML = '<ul>' + errors.map(function (err) {
+            return '<li>' + err + '</li>';
+        }).join('') + '</ul>';
+
+        form.parentNode.insertBefore(div, form);
+    }
+
+});
+```
+
+---
+
+## 11. Атрибуты `data-testid` для автопроверки
+
+Все проверяемые элементы должны содержать соответствующие атрибуты.
+
+### 11.1. Страница регистрации
+
+| Элемент | Значение |
+|---------|----------|
+| Поле «Логин» | `reg-login` |
+| Поле «Пароль» | `reg-password` |
+| Поле «ФИО» | `reg-fullname` |
+| Поле «Телефон» | `reg-phone` |
+| Поле «E-mail» | `reg-email` |
+| Кнопка «Создать пользователя» | `reg-submit` |
+| Блок ошибок | `reg-errors` |
+
+### 11.2. Страница входа
+
+| Элемент | Значение |
+|---------|----------|
+| Поле «Логин» | `login-login` |
+| Поле «Пароль» | `login-password` |
+| Кнопка «Войти» | `login-submit` |
+| Блок ошибок | `login-errors` |
+
+### 11.3. Страница создания заявки
+
+| Элемент | Значение |
+|---------|----------|
+| Поле «Помещение» (текстовое) | `req-room` |
+| Поле «Дата начала» | `req-date` |
+| Поле «Способ оплаты» | `req-payment` |
+| Кнопка «Отправить» | `req-submit` |
+| Блок ошибок | `req-errors` |
+
+### 11.4. Страница списка заявок
+
+| Элемент | Значение |
+|---------|----------|
+| Контейнер списка | `req-list` |
+| Поле отзыва (textarea) | `req-review` |
+
+### 11.5. Панель администратора
+
+| Элемент | Значение |
+|---------|----------|
+| Каждая строка заявки | `admin-row` |
+| Переключатель статуса | `admin-status` |
+
+---
+
+## 12. Модуль 4: REST API
+
+### 12.1. Назначение
+
+Модуль 4 — отдельная задача: разработать REST API, который при обращении возвращает данные из базы данных `shop_db.sql` в преобразованном виде. Приложение принимает обращения по адресу `http://localhost:8080`.
+
+### 12.2. Структура БД `shop_db.sql`
+
+Таблицы:
+
+- `users` (id, last_name, first_name, middle_name, email, city, street, house, flat);
+- `products` (id, title, price);
+- `orders` (id, user_id, status, created_at);
+- `order_items` (id, order_id, product_id, quantity).
+
+Состояние заказа хранится кодом: `new`, `paid`, `shipped`, `done`, `cancelled`.
+
+### 12.3. Правила формирования ответа
+
+Каждый заказ приводится к виду:
+
+```json
+{
+    "id": 1,
+    "buyer": "Ковалёв Артём Игоревич",
+    "status": "Выполнена",
+    "created_at": "14.02.2026",
+    "address": "Москва, Полярная, д. 31, кв. 12",
+    "total": "2770.50",
+    "items_count": 2,
+    "items": [
+        {"title": "Клавиатура механическая", "quantity": 1, "price": "1990.00", "sum": "1990.00"},
+        {"title": "Коврик для мыши", "quantity": 2, "price": "390.00", "sum": "780.00"}
+    ]
+}
+```
+
+Правила:
+
+- покупатель — одной строкой: `last_name first_name middle_name`;
+- статус — на русском языке;
+- суммы и цены — с двумя знаками после запятой;
+- дата — в формате ДД.ММ.ГГГГ;
+- адрес — одной строкой;
+- число позиций и массив позиций;
+- посторонние поля в ответ не включаются.
+
+### 12.4. Соответствие статусов
+
+| Код | Русское название |
+|-----|------------------|
+| new | Новая |
+| paid | Оплачена |
+| shipped | Отправлена |
+| done | Выполнена |
+| cancelled | Отменена |
+
+### 12.5. Эндпоинт `GET /orders`
+
+Возвращает список заказов в порядке возрастания номера заказа. Параметры запроса `status` и `user_id` необязательны и могут указываться вместе. Если под условие не подходит ни один заказ, возвращается код 200 и пустой массив.
+
+Пример `api.py`:
+
+```python
+from flask import Flask, request, jsonify
+import sqlite3, os
+
+app = Flask(__name__)
+DB = os.path.join(os.path.dirname(__file__), 'shop.db')
+
+STATUS_MAP = {
+    'new':       'Новая',
+    'paid':      'Оплачена',
+    'shipped':   'Отправлена',
+    'done':      'Выполнена',
+    'cancelled': 'Отменена',
+}
+
+
+def db():
+    c = sqlite3.connect(DB)
+    c.row_factory = sqlite3.Row
+    return c
+
+
+def fmt_date(s):
+    """2026-02-14 10:15:00 → 14.02.2026"""
+    try:
+        return f"{s[8:10]}.{s[5:7]}.{s[0:4]}"
+    except Exception:
+        return s
+
+
+def fmt_address(u):
+    parts = [u['city'], u['street'], f"д. {u['house']}"]
+    if u['flat']:
+        parts.append(f"кв. {u['flat']}")
+    return ", ".join(parts)
+
+
+def fmt_money(x):
+    return f"{float(x):.2f}"
+
+
+@app.route('/orders', methods=['GET'])
+def orders():
+    status = request.args.get('status')
+    user_id = request.args.get('user_id')
+
+    if status and status not in STATUS_MAP:
+        return jsonify({'error': f'Недопустимое значение status: {status}'}), 400
+
+    if user_id and not user_id.isdigit():
+        return jsonify({'error': f'Недопустимое значение user_id: {user_id}'}), 400
+
+    try:
+        c = db()
+        sql = """
+            SELECT o.id, o.user_id, o.status, o.created_at,
+                   u.last_name, u.first_name, u.middle_name,
+                   u.city, u.street, u.house, u.flat
+            FROM orders o
+            JOIN users u ON u.id = o.user_id
+            WHERE 1=1
+        """
+        params = []
+        if status:
+            sql += " AND o.status = ?"
+            params.append(status)
+        if user_id:
+            sql += " AND o.user_id = ?"
+            params.append(int(user_id))
+        sql += " ORDER BY o.id ASC"
+
+        rows = c.execute(sql, params).fetchall()
+
+        result = []
+        for o in rows:
+            items = c.execute("""
+                SELECT oi.quantity, p.title, p.price
+                FROM order_items oi
+                JOIN products p ON p.id = oi.product_id
+                WHERE oi.order_id = ?
+                ORDER BY oi.id ASC
+            """, (o['id'],)).fetchall()
+
+            item_list = []
+            total = 0.0
+            for it in items:
+                s = float(it['price']) * int(it['quantity'])
+                total += s
+                item_list.append({
+                    'title':    it['title'],
+                    'quantity': int(it['quantity']),
+                    'price':    fmt_money(it['price']),
+                    'sum':      fmt_money(s),
+                })
+
+            result.append({
+                'id':          o['id'],
+                'buyer':       f"{o['last_name']} {o['first_name']} {o['middle_name'] or ''}".strip(),
+                'status':      STATUS_MAP[o['status']],
+                'created_at':  fmt_date(o['created_at']),
+                'address':     fmt_address(o),
+                'total':       fmt_money(total),
+                'items_count': len(item_list),
+                'items':       item_list,
+            })
+
+        c.close()
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=8080, debug=True)
+```
+
+### 12.6. Коды состояния
+
+| Ситуация | Код | Тело ответа |
+|----------|-----|-------------|
+| Успешно | 200 | массив заказов |
+| Неверный параметр | 400 | `{"error": "..."}` |
+| Внутренняя ошибка | 500 | `{"error": "..."}` |
+
+### 12.7. Развёртывание `shop_db.sql` в SQLite
+
+```bash
+sqlite3 shop.db < shop_db.sql
+```
+
+В PostgreSQL:
+
+```bash
+psql -U postgres -d shop_db -f shop_db.sql
+```
+
+---
+
+## 13. Развёртывание, запуск и упаковка
+
+### 13.1. Запуск основного проекта
+
+```bash
+python app.py
+```
+
+Приложение будет доступно по адресу `http://127.0.0.1:8080`. Администратор — `Conf2027 / Demo77`.
+
+### 13.2. Запуск API (Модуль 4)
+
+```bash
+python api.py
+```
+
+API будет доступно по адресу `http://127.0.0.1:8080/orders`.
+
+### 13.3. Контроль версий
+
+```bash
+git init
+git add .
+git commit -m "Начальная структура проекта Конференции.РФ"
+# ... в процессе разработки ...
+git add .
+git commit -m "Реализованы все страницы и панель администратора"
+```
+
+Коммиты выполняются как минимум в начале и в конце работы над модулем.
+
+### 13.4. Упаковка архивов
+
+| Модуль | Имя архива | Содержимое |
+|--------|-----------|------------|
+| 1 | `project_1.zip` | вся папка проекта + репозиторий |
+| 2 | `layout_2.zip` | макеты страниц (DOCX или HTML) + исходник дизайна |
+| 3 | `project_3.zip` | папка проекта + ER-диаграмма |
+
+---
+
+## 14. Контрольный список перед сдачей
+
+### 14.1. Модуль 1
+
+- [ ] Проект собирается и запускается без ошибок.
+- [ ] Регистрация работает, валидация на клиенте и сервере.
+- [ ] Авторизация работает, отображаются сообщения об ошибках.
+- [ ] Создание заявки работает, поля имеют атрибуты `data-testid`.
+- [ ] Просмотр заявок работает, отзыв доступен после статуса «Завершено».
+- [ ] Панель администратора доступна по `Conf2027 / Demo77`.
+- [ ] Смена статуса фиксируется в БД.
+- [ ] Репозиторий инициализирован, есть коммиты в начале и в конце.
+- [ ] Архив `project_1.zip` сформирован.
+
+### 14.2. Модуль 2
+
+- [ ] Разработан дизайн всех страниц.
+- [ ] Используется единый стиль и палитра.
+- [ ] Учтена адаптивность под 390×844.
+- [ ] Подготовлены макеты (DOCX или HTML).
+- [ ] Приложен исходник дизайна (.fig, .psd, .xcf и т. п.).
+- [ ] Архив `layout_2.zip` сформирован.
+
+### 14.3. Модуль 3
+
+- [ ] Все страницы адаптивны под 390×844.
+- [ ] CRUD-операции над заявками работают.
+- [ ] Подключены и реально используются фреймворки/библиотеки.
+- [ ] Смена статуса администратором фиксируется в БД.
+- [ ] HTML5-документы корректны, язык указан, есть семантические теги.
+- [ ] Реализованы анимации и микроанимации.
+- [ ] ER-диаграмма построена и сохранена в папке проекта.
+- [ ] Архив `project_3.zip` сформирован.
+
+### 14.4. Модуль 4
+
+- [ ] Дамп `shop_db.sql` развёрнут.
+- [ ] Эндпоинт `GET /orders` возвращает список в порядке возрастания id.
+- [ ] Данные преобразованы: покупатель, статус, дата, адрес, суммы, позиции.
+- [ ] Фильтры `status` и `user_id` работают, при отсутствии — пустой массив и код 200.
+- [ ] Обработка ошибок: код 400 при неверном параметре, 500 при внутренней ошибке.
+- [ ] Тело ошибки — `{"error": "..."}`.
